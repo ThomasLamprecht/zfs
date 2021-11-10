@@ -482,8 +482,10 @@ def calculate():
     v["el2skip"] = d["evict_l2_skip"] / sint
     v["el2cach"] = d["evict_l2_cached"] / sint
     v["el2el"] = d["evict_l2_eligible"] / sint
-    v["el2mfu"] = d["evict_l2_eligible_mfu"] / sint
-    v["el2mru"] = d["evict_l2_eligible_mru"] / sint
+    if "evict_l2_eligible_mfu" in v:
+        v["el2mfu"] = d["evict_l2_eligible_mfu"] / sint
+    if "evict_l2_eligible_mru" in v:
+        v["el2mru"] = d["evict_l2_eligible_mru"] / sint
     v["el2inel"] = d["evict_l2_ineligible"] / sint
     v["mtxmis"] = d["mutex_miss"] / sint
 
