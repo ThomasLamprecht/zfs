@@ -1194,7 +1194,7 @@ again:
 }
 
 int
-zfs_rezget(znode_t *zp)
+zfs_rezget(znode_t *zp, boolean_t drop_cache)
 {
 	zfsvfs_t *zfsvfs = ZTOZSB(zp);
 	dmu_object_info_t doi;
@@ -1229,7 +1229,8 @@ zfs_rezget(znode_t *zp)
 	 * served by mappedread() and mmap() (see #10931).  FreeBSD does the
 	 * same here via vn_pages_remove().
 	 */
-	truncate_inode_pages(ZTOI(zp)->i_mapping, 0);
+	if (drop_cache)
+		truncate_inode_pages(ZTOI(zp)->i_mapping, 0);
 
 	zh = zfs_znode_hold_enter(zfsvfs, obj_num);
 

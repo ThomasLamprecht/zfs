@@ -1106,7 +1106,7 @@ again:
 }
 
 int
-zfs_rezget(znode_t *zp)
+zfs_rezget(znode_t *zp, boolean_t drop_cache)
 {
 	zfsvfs_t *zfsvfs = zp->z_zfsvfs;
 	dmu_object_info_t doi;
@@ -1133,11 +1133,13 @@ zfs_rezget(znode_t *zp)
 	 * Such pages will be invalid and can safely be skipped here.
 	 */
 	vp = ZTOV(zp);
+	if (drop_cache) {
 #if __FreeBSD_version >= 1400042
-	vn_pages_remove_valid(vp, 0, 0);
+		vn_pages_remove_valid(vp, 0, 0);
 #else
-	vn_pages_remove(vp, 0, 0);
+		vn_pages_remove(vp, 0, 0);
 #endif
+	}
 
 	ZFS_OBJ_HOLD_ENTER(zfsvfs, obj_num);
 
