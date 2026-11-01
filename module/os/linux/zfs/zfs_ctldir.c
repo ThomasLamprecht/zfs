@@ -1137,7 +1137,11 @@ static void
 zfsctl_snapshot_sb_atime_cb(struct super_block *sb, void *sbap)
 {
 	zfsvfs_t *zfsvfs = sb->s_fs_info;
-	if (zfsvfs == NULL)
+	/*
+	 * Only a snapshot can match. Skip filesystems before reading z_os,
+	 * which a rollback or receive can replace concurrently.
+	 */
+	if (zfsvfs == NULL || !zfsvfs->z_issnap)
 		return;
 
 	zfsctl_snapshot_sb_atime_cb_args_t *sba = sbap;
