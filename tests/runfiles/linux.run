@@ -185,7 +185,8 @@ tests = ['luks_sanity']
 tags = ['functional', 'luks']
 
 [tests/functional/mmap:Linux]
-tests = ['mmap_libaio_001_pos', 'mmap_sync_001_pos', 'mmap_rollback_deadlock']
+tests = ['mmap_libaio_001_pos', 'mmap_sync_001_pos', 'mmap_rollback_deadlock',
+    'mmap_failed_rollback']
 tags = ['functional', 'mmap']
 
 [tests/functional/mmp:Linux]
