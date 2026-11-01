@@ -607,7 +607,7 @@ zpl_putpage(struct page *pp, struct writeback_control *wbc, void *data)
 	ret = zfs_putpage(pp->mapping->host, pp, wbc, *for_sync);
 	spl_fstrans_unmark(cookie);
 
-	return (ret);
+	return (-ret);
 }
 
 #ifdef HAVE_WRITE_CACHE_PAGES
