@@ -706,7 +706,8 @@ zpl_write_cache_pages(struct address_space *mapping,
 #endif
 
 static int
-zpl_writepages(struct address_space *mapping, struct writeback_control *wbc)
+zpl_writepages_impl(struct address_space *mapping,
+    struct writeback_control *wbc)
 {
 	znode_t		*zp = ITOZ(mapping->host);
 	zfsvfs_t	*zfsvfs = ITOZSB(mapping->host);
@@ -767,6 +768,28 @@ zpl_writepages(struct address_space *mapping, struct writeback_control *wbc)
 		result = zpl_write_cache_pages(mapping, wbc, &for_sync);
 	}
 	return (result);
+}
+
+static int
+zpl_writepages(struct address_space *mapping, struct writeback_control *wbc)
+{
+	zfsvfs_t *zfsvfs = ITOZSB(mapping->host);
+	int error;
+
+	if (wbc->for_sync)
+		return (zpl_writepages_impl(mapping, wbc));
+
+	/*
+	 * Callers other than sync(), such as khugepaged, may hold pages of the
+	 * mapping locked, so only try to take the teardown lock for them, and
+	 * hold it so that taking it again further down doesn't wait.
+	 */
+	if ((error = zpl_tryenter(zfsvfs, FTAG)) != 0)
+		return (error);
+	error = zpl_writepages_impl(mapping, wbc);
+	zpl_exit(zfsvfs, FTAG);
+
+	return (error);
 }
 
 #ifdef HAVE_VFS_WRITEPAGE
